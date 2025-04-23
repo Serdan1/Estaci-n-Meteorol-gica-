@@ -1,3 +1,6 @@
+import threading
+import random
+from datetime import datetime
 from ..classes.estacion import Estacion
 from ..classes.registro_climatico import RegistroClimatico
 from ..classes.lista import Lista
@@ -9,7 +12,7 @@ from ..functions.lista_barrido import barrido
 from ..functions.hash_agregar import agregar
 from ..functions.hash_buscar import buscar as hash_buscar
 from ..functions.encrypt_encrypt import encrypt
-from ..functions.encrypt_decrypt import decrypt  # Nueva importación
+from ..functions.encrypt_decrypt import decrypt
 
 class Controller:
     """Clase que gestiona la lógica del sistema MVC."""
@@ -17,6 +20,9 @@ class Controller:
         self.estaciones_lista = Lista()
         self.estaciones_tabla = TablaHash(9)
         self.encryption = Encryption()
+        self.timer = None
+        self.is_running = False
+        self.id_estacion_periodica = None
 
     def agregar_estacion(self, id_estacion, nombre, ubicacion):
         """Agrega una estación a la lista y la tabla hash."""
@@ -68,8 +74,55 @@ class Controller:
                     nodo = nodo.sig
             aux = aux.sig
         return "\n".join(output) if output else "No hay estaciones"
-    
 
+    def generar_registro_simulado(self):
+        """Genera un registro climático simulado."""
+        fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        temperatura = round(random.uniform(15, 35), 1)  # Temperatura entre 15 y 35°C
+        humedad = random.randint(40, 90)  # Humedad entre 40% y 90%
+        return fecha, temperatura, humedad
+
+    def agregar_registro_periodico(self):
+        """Añade un registro simulado cada N segundos a la estación seleccionada."""
+        if not self.is_running or not self.id_estacion_periodica:
+            return
+        
+        fecha, temperatura, humedad = self.generar_registro_simulado()
+        result = self.agregar_registro(self.id_estacion_periodica, fecha, temperatura, humedad)
+        print(f"Registro periódico añadido: {result}")
+        
+        # Reprogramar el temporizador si sigue activo
+        if self.is_running:
+            self.timer = threading.Timer(10, self.agregar_registro_periodico)
+            self.timer.start()
+
+    def iniciar_guardado_periodico(self, id_estacion):
+        """Inicia el guardado periódico para una estación."""
+        if self.is_running:
+            return "Guardado periódico ya está en ejecución"
+        
+        # Verificar que la estación exista
+        if not hash_buscar(self.estaciones_tabla, id_estacion):
+            return f"Estación {id_estacion} no encontrada"
+        
+        self.id_estacion_periodica = id_estacion
+        self.is_running = True
+        self.timer = threading.Timer(10, self.agregar_registro_periodico)  # Cada 10 segundos
+        self.timer.start()
+        return f"Guardado periódico iniciado para estación {id_estacion}"
+
+    def detener_guardado_periodico(self):
+        """Detiene el guardado periódico."""
+        if not self.is_running:
+            return "Guardado periódico no está en ejecución"
+        
+        self.is_running = False
+        if self.timer:
+            self.timer.cancel()
+            self.timer = None
+        self.id_estacion_periodica = None
+        return "Guardado periódico detenido"
+    
 # Propósito: La clase Controller centraliza la lógica del sistema, interactuando con el modelo (lista de listas, tabla hash, cifrado) y preparando datos para la vista (Gradio).
 
 # Atributos:
@@ -93,4 +146,33 @@ class Controller:
 # Granularidad: La clase está en un archivo separado, y usa funciones externas en functions/.
 
 # Uso: Estos métodos serán llamados por la interfaz Gradio para gestionar el sistema.
+
+# Tras implementar el guardado periódico:
+
+# Nuevos Atributos:
+# timer: Almacena el objeto threading.Timer para el guardado periódico.
+
+# is_running: Indica si el temporizador está activo.
+
+# id_estacion_periodica: Almacena el ID de la estación para la que se generan registros.
+
+# Nuevos Métodos:
+# generar_registro_simulado: Crea un registro simulado con fecha actual, temperatura aleatoria (15-35°C), y humedad aleatoria (40-90%).
+
+# agregar_registro_periodico: Genera un registro simulado, lo cifra, y lo inserta en la sublista de la estación seleccionada. Reprograma el temporizador si sigue activo.
+
+# iniciar_guardado_periodico: Inicia el temporizador para la estación especificada, ejecutando agregar_registro_periodico cada 10 segundos.
+
+# detener_guardado_periodico: Detiene el temporizador y limpia el estado.
+
+# Temporizador:
+# Usa threading.Timer para ejecutar agregar_registro_periodico cada 10 segundos (intervalo arbitrario, ya que no se especificó uno).
+
+# El temporizador se reprograma automáticamente mientras is_running sea True.
+
+# Sin diccionarios: Usa las estructuras existentes (listas, arreglos) y solo genera datos primitivos.
+
+# Granularidad: Los nuevos métodos están dentro de controller.py, pero podríamos separarlos en archivos individuales si el profesor lo exige más adelante.
+
+# Uso: Permite generar registros automáticamente, cumpliendo el requisito de "cada N tiempo se guarde algo".
 
