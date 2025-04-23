@@ -9,13 +9,14 @@ from ..functions.lista_barrido import barrido
 from ..functions.hash_agregar import agregar
 from ..functions.hash_buscar import buscar as hash_buscar
 from ..functions.encrypt_encrypt import encrypt
+from ..functions.encrypt_decrypt import decrypt  # Nueva importación
 
 class Controller:
     """Clase que gestiona la lógica del sistema MVC."""
     def __init__(self):
-        self.estaciones_lista = Lista()  # Lista de listas para estaciones
-        self.estaciones_tabla = TablaHash(9)  # Tabla hash con tamaño 9
-        self.encryption = Encryption()  # Instancia para cifrado
+        self.estaciones_lista = Lista()
+        self.estaciones_tabla = TablaHash(9)
+        self.encryption = Encryption()
 
     def agregar_estacion(self, id_estacion, nombre, ubicacion):
         """Agrega una estación a la lista y la tabla hash."""
@@ -53,7 +54,7 @@ class Controller:
                 while nodo:
                     if isinstance(nodo.info, str):
                         try:
-                            decrypted_data = self.encryption.decrypt(nodo.info)
+                            decrypted_data = decrypt(self.encryption, nodo.info)
                             registro = RegistroClimatico(
                                 decrypted_data['fecha'],
                                 decrypted_data['temperatura'],

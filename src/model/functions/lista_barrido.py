@@ -15,7 +15,7 @@ def barrido(lista, encryption=None):
             print("  Registros:")
             nodo = aux.sublista.inicio
             while nodo:
-                if isinstance(nodo.info, str):  # Registro cifrado como base64
+                if isinstance(nodo.info, str):
                     try:
                         decrypted_data = decrypt(encryption, nodo.info)
                         registro = RegistroClimatico(
@@ -30,7 +30,7 @@ def barrido(lista, encryption=None):
                     print(f"    {nodo.info}")
                 nodo = nodo.sig
         aux = aux.sig
-
+        
 
 # Propósito: Recorre la lista e imprime cada elemento, incluyendo los registros en las sublistas (si existen).
 
