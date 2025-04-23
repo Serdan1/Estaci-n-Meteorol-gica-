@@ -80,7 +80,6 @@ def create_interface():
                     outputs=periodica_output
                 )
 
-        # Cerrar la base de datos al cerrar la interfaz
         interface.close = controller.close
 
     return interface
@@ -89,7 +88,7 @@ def launch_interface():
     """Lanza la interfaz Gradio."""
     interface = create_interface()
     interface.launch()
-
+    
 
 # Propósito: Define una interfaz gráfica con Gradio que interactúa con el Controller para gestionar el sistema.
 

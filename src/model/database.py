@@ -1,8 +1,8 @@
 import sqlite3
-from ..classes.estacion import Estacion
-from ..classes.lista import Lista
-from ..functions.lista_insertar import insertar
-from ..functions.hash_agregar import agregar
+from .classes.estacion import Estacion
+from .classes.lista import Lista
+from .functions.lista_insertar import insertar
+from .functions.hash_agregar import agregar
 
 class Database:
     """Clase para manejar la base de datos SQLite."""
@@ -48,18 +48,16 @@ class Database:
 
     def cargar_datos(self, lista, tabla):
         """Carga estaciones y registros desde la base de datos al iniciar."""
-        # Cargar estaciones
         self.cursor.execute('SELECT id_estacion, nombre, ubicacion FROM estaciones')
         for row in self.cursor.fetchall():
             estacion = Estacion(row[0], row[1], row[2])
             insertar(lista, estacion, campo='id_estacion')
             agregar(tabla, estacion)
 
-        # Cargar registros
         self.cursor.execute('SELECT id_estacion, data FROM registros')
         for row in self.cursor.fetchall():
             id_estacion, encrypted_data = row
-            from ..functions.lista_buscar import buscar as lista_buscar
+            from .functions.lista_buscar import buscar as lista_buscar
             nodo = lista_buscar(lista, id_estacion, campo='id_estacion')
             if nodo:
                 insertar(nodo.sublista, encrypted_data, campo=None)

@@ -1,19 +1,19 @@
 import threading
 import random
 from datetime import datetime
-from ..classes.estacion import Estacion
-from ..classes.registro_climatico import RegistroClimatico
-from ..classes.lista import Lista
-from ..classes.tabla_hash import TablaHash
-from ..classes.encryption import Encryption
-from ..functions.lista_insertar import insertar
-from ..functions.lista_buscar import buscar as lista_buscar
-from ..functions.lista_barrido import barrido
-from ..functions.hash_agregar import agregar
-from ..functions.hash_buscar import buscar as hash_buscar
-from ..functions.encrypt_encrypt import encrypt
-from ..functions.encrypt_decrypt import decrypt
-from ..database import Database
+from ..classes.estacion import Estacion  # Corregido: .classes -> ..classes
+from ..classes.registro_climatico import RegistroClimatico  # Corregido: .classes -> ..classes
+from ..classes.lista import Lista  # Corregido: .classes -> ..classes
+from ..classes.tabla_hash import TablaHash  # Corregido: .classes -> ..classes
+from ..classes.encryption import Encryption  # Corregido: .classes -> ..classes
+from ..functions.lista_insertar import insertar  # Corregido: .functions -> ..functions
+from ..functions.lista_buscar import buscar as lista_buscar  # Corregido: .functions -> ..functions
+from ..functions.lista_barrido import barrido  # Corregido: .functions -> ..functions
+from ..functions.hash_agregar import agregar  # Corregido: .functions -> ..functions
+from ..functions.hash_buscar import buscar as hash_buscar  # Corregido: .functions -> ..functions
+from ..functions.encrypt_encrypt import encrypt  # Corregido: .functions -> ..functions
+from ..functions.encrypt_decrypt import decrypt  # Corregido: .functions -> ..functions
+from ..database import Database  # Corregido: .database -> ..database
 
 class Controller:
     """Clase que gestiona la lógica del sistema MVC."""
@@ -130,7 +130,6 @@ class Controller:
         """Cierra los recursos al finalizar."""
         self.detener_guardado_periodico()
         self.db.close()
-
 
     
 # Propósito: La clase Controller centraliza la lógica del sistema, interactuando con el modelo (lista de listas, tabla hash, cifrado) y preparando datos para la vista (Gradio).
