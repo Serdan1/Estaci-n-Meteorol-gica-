@@ -13,31 +13,36 @@ from ..functions.hash_agregar import agregar
 from ..functions.hash_buscar import buscar as hash_buscar
 from ..functions.encrypt_encrypt import encrypt
 from ..functions.encrypt_decrypt import decrypt
+from ..database import Database
 
 class Controller:
     """Clase que gestiona la lógica del sistema MVC."""
     def __init__(self):
+        self.db = Database()
         self.estaciones_lista = Lista()
         self.estaciones_tabla = TablaHash(9)
         self.encryption = Encryption()
         self.timer = None
         self.is_running = False
         self.id_estacion_periodica = None
+        self.db.cargar_datos(self.estaciones_lista, self.estaciones_tabla)
 
     def agregar_estacion(self, id_estacion, nombre, ubicacion):
-        """Agrega una estación a la lista y la tabla hash."""
+        """Agrega una estación a la lista, la tabla hash y la base de datos."""
         estacion = Estacion(id_estacion, nombre, ubicacion)
         insertar(self.estaciones_lista, estacion, campo='id_estacion')
         agregar(self.estaciones_tabla, estacion)
+        self.db.guardar_estacion(estacion)
         return f"Estación {nombre} añadida con éxito"
 
     def agregar_registro(self, id_estacion, fecha, temperatura, humedad):
-        """Agrega un registro climático cifrado a la sublista de una estación."""
+        """Agrega un registro climático cifrado a la sublista y la base de datos."""
         nodo = lista_buscar(self.estaciones_lista, id_estacion, campo='id_estacion')
         if nodo:
             registro = RegistroClimatico(fecha, temperatura, humedad)
             encrypted_registro = encrypt(self.encryption, registro)
             insertar(nodo.sublista, encrypted_registro, campo=None)
+            self.db.guardar_registro(id_estacion, encrypted_registro)
             return f"Registro añadido a estación {id_estacion}"
         return f"Estación {id_estacion} no encontrada"
 
@@ -78,8 +83,8 @@ class Controller:
     def generar_registro_simulado(self):
         """Genera un registro climático simulado."""
         fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        temperatura = round(random.uniform(15, 35), 1)  # Temperatura entre 15 y 35°C
-        humedad = random.randint(40, 90)  # Humedad entre 40% y 90%
+        temperatura = round(random.uniform(15, 35), 1)
+        humedad = random.randint(40, 90)
         return fecha, temperatura, humedad
 
     def agregar_registro_periodico(self):
@@ -91,7 +96,6 @@ class Controller:
         result = self.agregar_registro(self.id_estacion_periodica, fecha, temperatura, humedad)
         print(f"Registro periódico añadido: {result}")
         
-        # Reprogramar el temporizador si sigue activo
         if self.is_running:
             self.timer = threading.Timer(10, self.agregar_registro_periodico)
             self.timer.start()
@@ -101,13 +105,12 @@ class Controller:
         if self.is_running:
             return "Guardado periódico ya está en ejecución"
         
-        # Verificar que la estación exista
         if not hash_buscar(self.estaciones_tabla, id_estacion):
             return f"Estación {id_estacion} no encontrada"
         
         self.id_estacion_periodica = id_estacion
         self.is_running = True
-        self.timer = threading.Timer(10, self.agregar_registro_periodico)  # Cada 10 segundos
+        self.timer = threading.Timer(10, self.agregar_registro_periodico)
         self.timer.start()
         return f"Guardado periódico iniciado para estación {id_estacion}"
 
@@ -122,6 +125,13 @@ class Controller:
             self.timer = None
         self.id_estacion_periodica = None
         return "Guardado periódico detenido"
+
+    def close(self):
+        """Cierra los recursos al finalizar."""
+        self.detener_guardado_periodico()
+        self.db.close()
+
+
     
 # Propósito: La clase Controller centraliza la lógica del sistema, interactuando con el modelo (lista de listas, tabla hash, cifrado) y preparando datos para la vista (Gradio).
 
@@ -175,4 +185,20 @@ class Controller:
 # Granularidad: Los nuevos métodos están dentro de controller.py, pero podríamos separarlos en archivos individuales si el profesor lo exige más adelante.
 
 # Uso: Permite generar registros automáticamente, cumpliendo el requisito de "cada N tiempo se guarde algo".
+
+# Tras añadir la BD:
+
+# Nuevos Atributos:
+# db: Instancia de Database para manejar la base de datos.
+
+# Cambios:
+# En __init__, creamos la base de datos y cargamos los datos existentes con self.db.cargar_datos.
+
+# En agregar_estacion y agregar_registro, guardamos los datos en la base de datos con self.db.guardar_estacion y self.db.guardar_registro.
+
+# Añadimos un método close para cerrar la conexión a la base de datos al finalizar.
+
+# Sin diccionarios: Usa las estructuras existentes y consultas SQL.
+
+# Uso: Persiste los datos entre ejecuciones, cargándolos al iniciar y guardándolos al añadir.
 

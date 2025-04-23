@@ -9,7 +9,6 @@ def create_interface():
         gr.Markdown("# Estación Meteorológica")
         gr.Markdown("Sistema para gestionar estaciones y registros climáticos con cifrado.")
 
-        # Sección para agregar estación
         with gr.Row():
             with gr.Column():
                 gr.Markdown("## Agregar Estación")
@@ -24,7 +23,6 @@ def create_interface():
                     outputs=agregar_output
                 )
 
-        # Sección para agregar registro
         with gr.Row():
             with gr.Column():
                 gr.Markdown("## Agregar Registro Climático")
@@ -40,7 +38,6 @@ def create_interface():
                     outputs=reg_output
                 )
 
-        # Sección para buscar estación
         with gr.Row():
             with gr.Column():
                 gr.Markdown("## Buscar Estación")
@@ -53,7 +50,6 @@ def create_interface():
                     outputs=buscar_output
                 )
 
-        # Sección para mostrar datos
         with gr.Row():
             with gr.Column():
                 gr.Markdown("## Mostrar Datos")
@@ -65,7 +61,6 @@ def create_interface():
                     outputs=mostrar_output
                 )
 
-        # Sección para guardado periódico
         with gr.Row():
             with gr.Column():
                 gr.Markdown("## Guardado Periódico")
@@ -84,6 +79,9 @@ def create_interface():
                     inputs=None,
                     outputs=periodica_output
                 )
+
+        # Cerrar la base de datos al cerrar la interfaz
+        interface.close = controller.close
 
     return interface
 
