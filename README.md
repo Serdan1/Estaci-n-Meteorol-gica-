@@ -26,18 +26,13 @@ Sistema para gestionar estaciones meteorológicas con datos climáticos almacena
 
 ## Instalación
 1. Clona el repositorio:
-   ```bash
-   git clone <URL>
+   git clone [<URL>](https://github.com/Serdan1/Estaci-n-Meteorol-gica-.git)
    cd weather-station
 
 Instala las dependencias:
-bash
-
 pip install -r docs/requirements.txt
 
 Ejecuta el sistema:
-bash
-
 python main.py
 
 Abre la URL generada por Gradio (ej. http://127.0.0.1:7860) en un navegador.
@@ -67,7 +62,6 @@ Tabla registros: Almacena registros climáticos cifrados con referencia a la est
 
 ## Pruebas
 Ejecuta las pruebas unitarias para verificar la funcionalidad:
-
 python -m unittest discover tests
 
 
