@@ -3,6 +3,7 @@ from Crypto.Random import get_random_bytes
 import base64
 import json
 from ..classes.encryption import Encryption
+from .encrypt_pad import pad
 
 def encrypt(encryption, data):
     """Cifra un objeto y devuelve el texto cifrado en base64."""
@@ -16,11 +17,10 @@ def encrypt(encryption, data):
         'humedad': data.humedad
     }).encode()
     
-    # Rellenar datos para múltiplo de 16 bytes
-    padding_length = 16 - (len(data_json) % 16)
-    data_padded = data_json + (chr(padding_length) * padding_length).encode()
+    # Rellenar datos
+    data_padded = pad(data_json)
     
-    # Generar IV (vector de inicialización)
+    # Generar IV
     iv = get_random_bytes(16)
     
     # Crear cifrador

@@ -2,6 +2,7 @@ from Crypto.Cipher import AES
 import base64
 import json
 from ..classes.encryption import Encryption
+from .encrypt_unpad import unpad
 
 def decrypt(encryption, encrypted_data):
     """Descifra un texto cifrado en base64 y devuelve el objeto original."""
@@ -11,7 +12,7 @@ def decrypt(encryption, encrypted_data):
     # Decodificar de base64
     raw = base64.b64decode(encrypted_data)
     
-    # Extraer IV (primeros 16 bytes) y datos cifrados
+    # Extraer IV y datos cifrados
     iv, encrypted_data = raw[:16], raw[16:]
     
     # Crear cifrador
@@ -21,8 +22,7 @@ def decrypt(encryption, encrypted_data):
     decrypted_padded = encryption.cipher.decrypt(encrypted_data)
     
     # Eliminar relleno
-    padding_length = decrypted_padded[-1]
-    decrypted_data = decrypted_padded[:-padding_length]
+    decrypted_data = unpad(decrypted_padded)
     
     # Convertir JSON a objeto
     data_dict = json.loads(decrypted_data.decode())
