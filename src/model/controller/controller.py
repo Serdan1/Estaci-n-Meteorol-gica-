@@ -165,7 +165,7 @@ class Controller:
         """Cierra los recursos al finalizar."""
         self.detener_guardado_periodico()
         self.db.close()
-
+        
 
 
 # Propósito: La clase Controller centraliza la lógica del sistema, interactuando con el modelo (lista de listas, tabla hash, cifrado) y preparando datos para la vista (Gradio).
