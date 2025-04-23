@@ -13,33 +13,73 @@ from ..functions.hash_agregar import agregar
 from ..functions.hash_buscar import buscar as hash_buscar
 from ..functions.encrypt_encrypt import encrypt
 from ..functions.encrypt_decrypt import decrypt
+from ..database import Database
 
 class Controller:
     """Clase que gestiona la lógica del sistema MVC."""
     def __init__(self):
+        print("Inicializando Controller...")
+        self.db = Database()
         self.estaciones_lista = Lista()
         self.estaciones_tabla = TablaHash(9)
         self.encryption = Encryption()
         self.timer = None
         self.is_running = False
         self.id_estacion_periodica = None
+        self.db.cargar_datos(self.estaciones_lista, self.estaciones_tabla)
 
     def agregar_estacion(self, id_estacion, nombre, ubicacion):
-        """Agrega una estación a la lista y la tabla hash."""
-        estacion = Estacion(id_estacion, nombre, ubicacion)
-        insertar(self.estaciones_lista, estacion, campo='id_estacion')
-        agregar(self.estaciones_tabla, estacion)
-        return f"Estación {nombre} añadida con éxito"
+        """Agrega una estación a la lista, la tabla hash y la base de datos."""
+        try:
+            print(f"Valores recibidos - id_estacion: {id_estacion}, nombre: {nombre}, ubicacion: {ubicacion}")
+            if not id_estacion or not nombre or not ubicacion:
+                return "Error: Todos los campos (ID, Nombre, Ubicación) son requeridos"
+            
+            print("Creando objeto Estacion...")
+            estacion = Estacion(id_estacion, nombre, ubicacion)
+            print(f"Estacion creada: id={estacion.id_estacion}, nombre={estacion.nombre}, ubicacion={estacion.ubicacion}")
+            
+            print("Insertando en la lista de listas...")
+            insertar(self.estaciones_lista, estacion, campo='id_estacion')
+            print("Estación insertada en la lista de listas")
+            
+            print("Insertando en la tabla hash...")
+            agregar(self.estaciones_tabla, estacion)
+            print("Estación insertada en la tabla hash")
+            
+            print("Guardando en la base de datos...")
+            self.db.guardar_estacion(estacion)
+            print("Estación guardada en la base de datos")
+            
+            return f"Estación {nombre} añadida con éxito"
+        except Exception as e:
+            print(f"Error capturado en agregar_estacion: {str(e)}")
+            return f"Error al agregar estación: {str(e)}"
 
     def agregar_registro(self, id_estacion, fecha, temperatura, humedad):
-        """Agrega un registro climático cifrado a la sublista de una estación."""
-        nodo = lista_buscar(self.estaciones_lista, id_estacion, campo='id_estacion')
-        if nodo:
-            registro = RegistroClimatico(fecha, temperatura, humedad)
-            encrypted_registro = encrypt(self.encryption, registro)
-            insertar(nodo.sublista, encrypted_registro, campo=None)
-            return f"Registro añadido a estación {id_estacion}"
-        return f"Estación {id_estacion} no encontrada"
+        """Agrega un registro climático cifrado a la sublista y la base de datos."""
+        try:
+            print(f"Valores recibidos - id_estacion: {id_estacion}, fecha: {fecha}, temperatura: {temperatura}, humedad: {humedad}")
+            if not id_estacion or not fecha or temperatura is None or humedad is None:
+                return "Error: Todos los campos (ID, Fecha, Temperatura, Humedad) son requeridos"
+            
+            print("Buscando estación en la lista...")
+            nodo = lista_buscar(self.estaciones_lista, id_estacion, campo='id_estacion')
+            if nodo:
+                print("Creando registro...")
+                registro = RegistroClimatico(fecha, temperatura, humedad)
+                print("Cifrando registro...")
+                encrypted_registro = encrypt(self.encryption, registro)
+                print("Insertando registro en la sublista...")
+                insertar(nodo.sublista, encrypted_registro, campo=None)
+                print("Guardando registro en la base de datos...")
+                self.db.guardar_registro(id_estacion, encrypted_registro)
+                print("Registro guardado en la base de datos")
+                return f"Registro añadido a estación {id_estacion}"
+            return f"Estación {id_estacion} no encontrada"
+        except Exception as e:
+            print(f"Error capturado en agregar_registro: {str(e)}")
+            return f"Error al agregar registro: {str(e)}"
 
     def buscar_estacion(self, id_estacion):
         """Busca una estación en la tabla hash."""
@@ -120,9 +160,14 @@ class Controller:
             self.timer = None
         self.id_estacion_periodica = None
         return "Guardado periódico detenido"
-    
 
-    
+    def close(self):
+        """Cierra los recursos al finalizar."""
+        self.detener_guardado_periodico()
+        self.db.close()
+
+
+
 # Propósito: La clase Controller centraliza la lógica del sistema, interactuando con el modelo (lista de listas, tabla hash, cifrado) y preparando datos para la vista (Gradio).
 
 # Atributos:
