@@ -65,12 +65,33 @@ def create_interface():
                     outputs=mostrar_output
                 )
 
+        # Sección para guardado periódico
+        with gr.Row():
+            with gr.Column():
+                gr.Markdown("## Guardado Periódico")
+                periodica_id = gr.Textbox(label="ID de Estación para Guardado Periódico")
+                iniciar_btn = gr.Button("Iniciar Guardado Periódico")
+                detener_btn = gr.Button("Detener Guardado Periódico")
+                periodica_output = gr.Textbox(label="Resultado", interactive=False)
+                
+                iniciar_btn.click(
+                    fn=controller.iniciar_guardado_periodico,
+                    inputs=periodica_id,
+                    outputs=periodica_output
+                )
+                detener_btn.click(
+                    fn=controller.detener_guardado_periodico,
+                    inputs=None,
+                    outputs=periodica_output
+                )
+
     return interface
 
 def launch_interface():
     """Lanza la interfaz Gradio."""
     interface = create_interface()
     interface.launch()
+
 
 # Propósito: Define una interfaz gráfica con Gradio que interactúa con el Controller para gestionar el sistema.
 
@@ -88,4 +109,18 @@ def launch_interface():
 # Sin diccionarios: La interfaz pasa datos directamente al controlador, que usa listas y arreglos.
 
 # Uso: Proporciona una interfaz web interactiva para el usuario, conectando el modelo y el controlador en el patrón MVC.
+
+
+# Tras añadir controles del temporizador:
+
+# Nuevos Elementos:
+# Añadimos una sección "Guardado Periódico" con un campo para el ID de Estación y dos botones: "Iniciar Guardado Periódico" y "Detener Guardado Periódico".
+
+# El botón "Iniciar" llama a controller.iniciar_guardado_periodico, pasando el ID ingresado.
+
+# El botón "Detener" llama a controller.detener_guardado_periodico.
+
+# Sin diccionarios: La interfaz pasa datos primitivos al controlador.
+
+# Uso: Permite al usuario iniciar y detener el guardado periódico desde la interfaz, cumpliendo el requisito de "cada N tiempo se guarde algo".
 
