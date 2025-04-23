@@ -1,5 +1,5 @@
 from ..classes.tabla_hash import TablaHash
-from ..functions.lista_buscar import buscar
+from ..functions.lista_buscar import buscar as lista_buscar
 from .hash_funcion_hash import funcion_hash
 
 def buscar(tabla, id_estacion):
@@ -9,7 +9,7 @@ def buscar(tabla, id_estacion):
     
     posicion = funcion_hash(id_estacion, tabla.tamanio)
     if tabla.tabla[posicion] is not None:
-        nodo = buscar(tabla.tabla[posicion], id_estacion, campo='id_estacion')
+        nodo = lista_buscar(tabla.tabla[posicion], id_estacion, campo='id_estacion')
         return nodo.info if nodo else None
     return None
 

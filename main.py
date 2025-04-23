@@ -4,7 +4,7 @@ from src.model.classes.lista import Lista
 from src.model.classes.tabla_hash import TablaHash
 from src.model.classes.encryption import Encryption
 from src.model.functions.lista_insertar import insertar
-from src.model.functions.lista_buscar import buscar
+from src.model.functions.lista_buscar import buscar as lista_buscar
 from src.model.functions.lista_eliminar import eliminar
 from src.model.functions.lista_barrido import barrido
 from src.model.functions.hash_agregar import agregar
@@ -51,7 +51,7 @@ def main():
 
     # Buscar una estación en la lista y añadir un registro cifrado
     print("\nBuscando estación E001 en la lista...")
-    nodo = buscar(estaciones_lista, "E001", campo='id_estacion')
+    nodo = lista_buscar(estaciones_lista, "E001", campo='id_estacion')
     if nodo:
         print(f"Estación encontrada: {nodo.info}")
         registro = RegistroClimatico("2025-04-23 10:00", 25.5, 60)
@@ -80,4 +80,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-    
