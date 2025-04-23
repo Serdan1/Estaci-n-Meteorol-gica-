@@ -11,7 +11,7 @@ def insertar(lista, dato, campo=None):
     nodo = NodoLista()
     nodo.info = dato
     if isinstance(dato, Estacion):
-        nodo.sublista = Lista()  # Inicializa sublista para estaciones
+        nodo.sublista = Lista()
 
     if lista.inicio is None or comparar(lista.inicio.info, dato, campo) > 0:
         nodo.sig = lista.inicio
@@ -23,7 +23,6 @@ def insertar(lista, dato, campo=None):
         nodo.sig = act
         ant.sig = nodo
     lista.tamanio += 1
-
 
 # Propósito: Inserta un elemento (Estacion o RegistroClimatico) en la lista, ordenado por el campo especificado (ej. id_estacion para estaciones, fecha para registros).
 

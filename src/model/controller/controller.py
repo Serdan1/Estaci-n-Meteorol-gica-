@@ -1,48 +1,43 @@
 import threading
 import random
 from datetime import datetime
-from ..classes.estacion import Estacion  # Corregido: .classes -> ..classes
-from ..classes.registro_climatico import RegistroClimatico  # Corregido: .classes -> ..classes
-from ..classes.lista import Lista  # Corregido: .classes -> ..classes
-from ..classes.tabla_hash import TablaHash  # Corregido: .classes -> ..classes
-from ..classes.encryption import Encryption  # Corregido: .classes -> ..classes
-from ..functions.lista_insertar import insertar  # Corregido: .functions -> ..functions
-from ..functions.lista_buscar import buscar as lista_buscar  # Corregido: .functions -> ..functions
-from ..functions.lista_barrido import barrido  # Corregido: .functions -> ..functions
-from ..functions.hash_agregar import agregar  # Corregido: .functions -> ..functions
-from ..functions.hash_buscar import buscar as hash_buscar  # Corregido: .functions -> ..functions
-from ..functions.encrypt_encrypt import encrypt  # Corregido: .functions -> ..functions
-from ..functions.encrypt_decrypt import decrypt  # Corregido: .functions -> ..functions
-from ..database import Database  # Corregido: .database -> ..database
+from ..classes.estacion import Estacion
+from ..classes.registro_climatico import RegistroClimatico
+from ..classes.lista import Lista
+from ..classes.tabla_hash import TablaHash
+from ..classes.encryption import Encryption
+from ..functions.lista_insertar import insertar
+from ..functions.lista_buscar import buscar as lista_buscar
+from ..functions.lista_barrido import barrido
+from ..functions.hash_agregar import agregar
+from ..functions.hash_buscar import buscar as hash_buscar
+from ..functions.encrypt_encrypt import encrypt
+from ..functions.encrypt_decrypt import decrypt
 
 class Controller:
     """Clase que gestiona la lógica del sistema MVC."""
     def __init__(self):
-        self.db = Database()
         self.estaciones_lista = Lista()
         self.estaciones_tabla = TablaHash(9)
         self.encryption = Encryption()
         self.timer = None
         self.is_running = False
         self.id_estacion_periodica = None
-        self.db.cargar_datos(self.estaciones_lista, self.estaciones_tabla)
 
     def agregar_estacion(self, id_estacion, nombre, ubicacion):
-        """Agrega una estación a la lista, la tabla hash y la base de datos."""
+        """Agrega una estación a la lista y la tabla hash."""
         estacion = Estacion(id_estacion, nombre, ubicacion)
         insertar(self.estaciones_lista, estacion, campo='id_estacion')
         agregar(self.estaciones_tabla, estacion)
-        self.db.guardar_estacion(estacion)
         return f"Estación {nombre} añadida con éxito"
 
     def agregar_registro(self, id_estacion, fecha, temperatura, humedad):
-        """Agrega un registro climático cifrado a la sublista y la base de datos."""
+        """Agrega un registro climático cifrado a la sublista de una estación."""
         nodo = lista_buscar(self.estaciones_lista, id_estacion, campo='id_estacion')
         if nodo:
             registro = RegistroClimatico(fecha, temperatura, humedad)
             encrypted_registro = encrypt(self.encryption, registro)
             insertar(nodo.sublista, encrypted_registro, campo=None)
-            self.db.guardar_registro(id_estacion, encrypted_registro)
             return f"Registro añadido a estación {id_estacion}"
         return f"Estación {id_estacion} no encontrada"
 
@@ -125,11 +120,7 @@ class Controller:
             self.timer = None
         self.id_estacion_periodica = None
         return "Guardado periódico detenido"
-
-    def close(self):
-        """Cierra los recursos al finalizar."""
-        self.detener_guardado_periodico()
-        self.db.close()
+    
 
     
 # Propósito: La clase Controller centraliza la lógica del sistema, interactuando con el modelo (lista de listas, tabla hash, cifrado) y preparando datos para la vista (Gradio).

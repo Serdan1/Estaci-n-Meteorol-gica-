@@ -15,7 +15,7 @@ def agregar(tabla, dato):
     if tabla.tabla[posicion] is None:
         tabla.tabla[posicion] = Lista()
     insertar(tabla.tabla[posicion], dato, campo='id_estacion')
-
+    
 
 # Propósito: Inserta una estación en la tabla hash en la posición determinada por id_estacion.
 

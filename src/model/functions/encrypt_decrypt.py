@@ -9,22 +9,16 @@ def decrypt(encryption, encrypted_data):
     if not isinstance(encryption, Encryption):
         raise ValueError("El primer argumento debe ser una Encryption")
     
-    # Decodificar de base64
     raw = base64.b64decode(encrypted_data)
     
-    # Extraer IV y datos cifrados
     iv, encrypted_data = raw[:16], raw[16:]
     
-    # Crear cifrador
     encryption.cipher = AES.new(encryption.key, AES.MODE_CBC, iv)
     
-    # Descifrar
     decrypted_padded = encryption.cipher.decrypt(encrypted_data)
     
-    # Eliminar relleno
     decrypted_data = unpad(decrypted_padded)
     
-    # Convertir JSON a objeto
     data_dict = json.loads(decrypted_data.decode())
     return {
         'fecha': data_dict['fecha'],

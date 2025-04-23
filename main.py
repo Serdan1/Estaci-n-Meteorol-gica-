@@ -1,14 +1,9 @@
-from src.view.interface import create_interface
+from src.view.interface import launch_interface
 
 def main():
     """Lanza la interfaz Gradio del sistema."""
-    interface = create_interface()
-    try:
-        interface.launch()
-    finally:
-        interface.close()
+    launch_interface()
 
 if __name__ == "__main__":
     main()
 
-    

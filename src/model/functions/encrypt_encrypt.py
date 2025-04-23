@@ -10,26 +10,20 @@ def encrypt(encryption, data):
     if not isinstance(encryption, Encryption):
         raise ValueError("El primer argumento debe ser una Encryption")
     
-    # Convertir datos a JSON
     data_json = json.dumps({
         'fecha': data.fecha,
         'temperatura': data.temperatura,
         'humedad': data.humedad
     }).encode()
     
-    # Rellenar datos
     data_padded = pad(data_json)
     
-    # Generar IV
     iv = get_random_bytes(16)
     
-    # Crear cifrador
     encryption.cipher = AES.new(encryption.key, AES.MODE_CBC, iv)
     
-    # Cifrar
     encrypted_data = encryption.cipher.encrypt(data_padded)
     
-    # Combinar IV y datos cifrados, codificar en base64
     return base64.b64encode(iv + encrypted_data).decode('utf-8')
 
 
